@@ -21,7 +21,9 @@ struct MultiplicityQaTask {
   OutputObj<TH1F> hMultV0M{TH1F("hMultV0M", "", 40000, 0., 40000.)};
   OutputObj<TH1F> hMultZNA{TH1F("hMultZNA", "", 500, 0., 200000.)};
   OutputObj<TH1F> hMultZNC{TH1F("hMultZNC", "", 500, 0., 200000.)};
-
+  OutputObj<TH1F> hMultTPC{TH1F("hMultTPC", "", 2000, 0., 20000.)};
+  OutputObj<TH2F> hMultTPCV0M{TH2F("hMultTPCV0M", "", 200, 0., 20000., 200, 0., 40000.)};
+  
   void process(soa::Join<aod::Collisions, aod::EvSels, aod::Mults>::iterator const& col)
   {
     if (!col.alias()[0])
@@ -34,6 +36,8 @@ struct MultiplicityQaTask {
     hMultV0M->Fill(col.multV0M());
     hMultZNA->Fill(col.multZNA());
     hMultZNC->Fill(col.multZNC());
+    hMultTPC->Fill(col.multTPC());
+    hMultTPCV0M->Fill(col.multTPC(), col.multV0M());
   }
 };
 

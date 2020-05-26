@@ -11,6 +11,7 @@
 #include "Framework/AnalysisTask.h"
 #include "Framework/AnalysisDataModel.h"
 #include "Analysis/EventSelection.h"
+#include "Analysis/Multiplicity.h"
 #include "TFile.h"
 #include "TTree.h"
 #include <map>
@@ -84,8 +85,8 @@ struct EventSelectionTask {
       delete tokens;
     }
   }
-
-  void process(aod::Collision const& collision, aod::BCs const& bcs, aod::Zdcs const& zdcs, aod::Run2V0s const& vzeros)
+  
+  void process(soa::Join<aod::Collisions, aod::Mults>::iterator const& collision, aod::BCs const& bcs, aod::Zdcs const& zdcs, aod::Run2V0s const& vzeros)
   {
     LOGF(debug, "Starting new event");
     // CTP info
@@ -93,10 +94,12 @@ struct EventSelectionTask {
     LOGF(debug, "triggerMask=%llu", triggerMask);
     // fill fired aliases
     int32_t alias[nAliases] = {0};
+    bool triggerSelected = false;
     for (auto& al : mAliasToClassIds) {
       for (auto& classIndex : al.second) {
         alias[al.first] |= triggerMask & (1ul << classIndex);
       }
+      if(alias[al.first]) triggerSelected = true;    // TODO: User trigger selection to be done according to a user specified mask 
     }
     // ZDC info
     auto zdc = getZdc(collision.bc(), zdcs);
@@ -111,9 +114,16 @@ struct EventSelectionTask {
     bool bbV0C = timeV0C > 0. && timeV0C < 25.;  // ns
     bool bgV0A = timeV0A > -25. && timeV0A < 0.; // ns
     bool bgV0C = timeV0C > -25. && timeV0C < 0.; // ns
-
+    
+    LOGF(debug, "triggerSelected %d", triggerSelected); 
+    
+    bool pileupTPCselected = true;
+    if(collision.multV0M() < (-800.0+2.4*collision.multTPC()+2.0e-5*collision.multTPC()*collision.multTPC())) 
+      pileupTPCselected = false;
+    
+    LOGF(debug, "pileup TPC selected %d", pileupTPCselected); 
     // Fill event selection columns
-    evsel(alias, bbV0A, bbV0C, bgV0A, bgV0C, bbZNA, bbZNC);
+    evsel(alias, bbV0A, bbV0C, bgV0A, bgV0C, bbZNA, bbZNC, triggerSelected, pileupTPCselected);
   }
 };
 

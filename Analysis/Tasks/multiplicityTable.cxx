@@ -18,7 +18,8 @@ using namespace o2::framework;
 
 struct MultiplicityTableTask {
   Produces<aod::Mults> mult;
-
+  uint32_t nTracks[1] = {0};
+  
   aod::Run2V0 getVZero(aod::BC const& bc, aod::Run2V0s const& vzeros)
   {
     for (auto& vzero : vzeros)
@@ -37,7 +38,7 @@ struct MultiplicityTableTask {
     return dummy;
   }
 
-  void process(aod::Collision const& collision, aod::BCs const& bcs, aod::Zdcs const& zdcs, aod::Run2V0s const& vzeros)
+  void process(aod::Collision const& collision, aod::BCs const& bcs, aod::Zdcs const& zdcs, aod::Run2V0s const& vzeros, soa::Join<aod::Tracks, aod::TracksExtra> const& tracks)
   {
     auto zdc = getZdc(collision.bc(), zdcs);
     auto vzero = getVZero(collision.bc(), vzeros);
@@ -45,10 +46,20 @@ struct MultiplicityTableTask {
     float multV0C = vzero.multC();
     float multZNA = zdc.energyCommonZNA();
     float multZNC = zdc.energyCommonZNC();
-
-    LOGF(info, "multV0A=%5.0f multV0C=%5.0f multZNA=%6.0f multZNC=%6.0f", multV0A, multV0C, multZNA, multZNC);
+    computeTrackMultiplicity(tracks);
+    
+    LOGF(info, "multV0A=%5.0f multV0C=%5.0f multZNA=%6.0f multZNC=%6.0f  multTPC=%d", multV0A, multV0C, multZNA, multZNC, nTracks[0]);
     // fill multiplicity columns
-    mult(multV0A, multV0C, multZNA, multZNC);
+    mult(multV0A, multV0C, multZNA, multZNC, nTracks[0]);
+  }
+  
+  void computeTrackMultiplicity(soa::Join<aod::Tracks, aod::TracksExtra> const& tracks) 
+  {
+    nTracks[0] = 0;  
+    for (auto& track : tracks) {
+      if (track.flags() & (uint64_t(1) << 5))
+        nTracks[0]++;  
+    }
   }
 };
 

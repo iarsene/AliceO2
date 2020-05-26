@@ -28,10 +28,14 @@ DECLARE_SOA_COLUMN(BGV0C, bgV0C, bool); // beam-gas time in V0C
 DECLARE_SOA_COLUMN(BBZNA, bbZNA, bool); // beam-beam time in ZNA
 DECLARE_SOA_COLUMN(BBZNC, bbZNC, bool); // beam-beam time in ZNC
 DECLARE_SOA_DYNAMIC_COLUMN(SEL7, sel7, [](bool bbV0A, bool bbV0C, bool bbZNA, bool bbZNC) -> bool { return bbV0A && bbV0C && bbZNA && bbZNC; });
+// user requested decisions
+DECLARE_SOA_COLUMN(Trigger, trigger, bool);   // trigger selection
+DECLARE_SOA_COLUMN(PileupTPC, pileupTPC, bool);   // TPC pileup selection
 } // namespace evsel
 DECLARE_SOA_TABLE(EvSels, "AOD", "EVSEL",
                   evsel::Alias,
                   evsel::BBV0A, evsel::BBV0C, evsel::BGV0A, evsel::BGV0C, evsel::BBZNA, evsel::BBZNC,
+                  evsel::Trigger, evsel::PileupTPC,
                   evsel::SEL7<evsel::BBV0A, evsel::BBV0C, evsel::BBZNA, evsel::BBZNC>);
 using EvSel = EvSels::iterator;
 } // namespace o2::aod

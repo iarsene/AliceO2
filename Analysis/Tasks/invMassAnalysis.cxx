@@ -38,7 +38,8 @@ struct InvMassAnalysis {
   // *reset* to OutputObj label - needed for correct placement in the output file
   OutputObj<TH1F> centV0M{TH1F("centV0M", "centrality V0", 100, 0.0, 100.0)};
   OutputObj<TH1F> vtxZ{TH1F("vtxZ", "vtx Z", 200, -20.0, 20.0)};
-
+  OutputObj<TH2F> multTPCV0M{TH2F("hMultTPCV0M", "", 200, 0., 20000., 200, 0., 40000.)};
+  
   OutputObj<TH1F> ptH{TH1F("pt", "pt", 100, -0.01, 10.01)};
   OutputObj<TH2F> ptCorr{TH2F("ptToPt", "ptToPt", 100, -0.01, 10.01, 100, -0.01, 10.01)};
   OutputObj<TH2F> tpcDedx{TH2F("tpcDedx", "TPC de/dx", 100, 0.0, 10.0, 100, 0.0, 200.0)};
@@ -73,15 +74,19 @@ struct InvMassAnalysis {
     trZ.setObject(new TH1F("Z", "Z", 100, -10., 10.));
   }
 
-  void process(soa::Join<aod::Collisions, aod::EvSels, aod::Cents>::iterator collision, soa::Filtered<soa::Join<aod::Tracks, aod::TracksExtra>> const& tracks)
+  void process(soa::Join<aod::Collisions, aod::EvSels, aod::Mults, aod::Cents>::iterator collision, soa::Filtered<soa::Join<aod::Tracks, aod::TracksExtra>> const& tracks)
   {
 
     if (!collision.sel7())
       return;
+    
+    if (!collision.pileupTPC())
+      return;  
 
     centV0M->Fill(collision.centV0M());
     vtxZ->Fill(collision.posZ());
-
+    multTPCV0M->Fill(collision.multTPC(), collision.multV0M());
+    
     for (auto& track : tracks) {
       //if (track.pt() < ptlow)
       // continue;
