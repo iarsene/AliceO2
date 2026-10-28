@@ -107,6 +107,7 @@ class Geometry
   float getHCALTowerSize() const { return mGlobal_HCAL_Tower_Size; }
   int getHCALTowersInX() const { return mGlobal_HCAL_Tower_NX; }
   int getHCALTowersInY() const { return mGlobal_HCAL_Tower_NY; }
+  float getHCALTowerHeight() const { return mGlobal_HCAL_Tower_Height; }
   int getNumberOfSegments() const { return mNumberOfSegments; } // NOTE: These are not the virtual segments, but just total number of layers as read from the geometry file. Need to disambiguate
   int getNumberOfPadLayers() const { return mNPadLayers; }
   int getNumberOfPixelLayers() const { return mNPixelLayers; }
@@ -216,6 +217,7 @@ class Geometry
   float mGlobal_HCAL_Tower_Size = 0.0;
   int mGlobal_HCAL_Tower_NX = 0;              // Number of HCAL towers on X
   int mGlobal_HCAL_Tower_NY = 0;              // Number of HCAL towers on Y
+  float mGlobal_HCAL_Tower_Height = 2.0;      // Number of fibers in Y to make a single HCAL tower
   float mGlobal_HCAL_Pitch_Size = 0.0;        // Distance between two fibers
   float mGlobal_HCAL_BeamPipeHole_Size = 0.0; // beam pipe hole size in HCAL
   HCALDesgin mHCALDesign = Sandwich;          // HCAL design type

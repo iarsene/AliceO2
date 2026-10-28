@@ -1380,7 +1380,7 @@ bool Detector::ProcessHitsHCAL(FairVolume* v)
     LOG(debug3) << "Adding new hit for parent " << mCurrentParentID << " and cell Col: " << col << " Row: " << row << " segment: " << segment;
 
     /// check handling of primary particles
-    AddHit(mCurrentParentID, mCurrentPrimaryID, mCurrentSuperparent->mEnergy, row * col + col, o2::focal::Hit::Subsystem_t::HCAL, math_utils::Point3D<float>(posX, posY, posZ), time, eloss);
+    AddHit(mCurrentParentID, mCurrentPrimaryID, mCurrentSuperparent->mEnergy, row * mGeometry->getHCALTowersInX() + col, o2::focal::Hit::Subsystem_t::HCAL, math_utils::Point3D<float>(posX, posY, posZ), time, eloss);
     o2stack->addHit(GetDetId());
   } else {
     LOG(debug3) << "Adding energy to the current hit";

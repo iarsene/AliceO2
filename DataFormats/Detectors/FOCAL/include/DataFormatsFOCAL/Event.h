@@ -91,6 +91,44 @@ class PixelLayerEvent
   ClassDefNV(PixelLayerEvent, 1);
 };
 
+class HCALEvent
+{
+
+ public:
+  int mOrbit = 0;
+  int mBC = 0;
+
+  // Header
+  uint32_t mHeader[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2];
+
+  // tc tp
+  uint8_t tc[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2][constants::HCAL_NUM_CHANNELS_PER_ROC_HALF];
+  uint8_t tp[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2][constants::HCAL_NUM_CHANNELS_PER_ROC_HALF];
+
+  // Data channels
+  uint16_t mADC[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2][constants::HCAL_NUM_CHANNELS_PER_ROC_HALF];
+  uint16_t mTOA[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2][constants::HCAL_NUM_CHANNELS_PER_ROC_HALF];
+  uint16_t mTOT[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2][constants::HCAL_NUM_CHANNELS_PER_ROC_HALF];
+
+  // Common mode channels
+  uint16_t mCMN_ADC[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2];
+  uint16_t mCMN_TOA[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2];
+  uint16_t mCMN_TOT[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2];
+
+  // Calibration channels
+  uint16_t mCalib_ADC[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2];
+  uint16_t mCalib_TOA[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2];
+  uint16_t mCalib_TOT[constants::HCAL_NUM_SAMPLES_PER_EVENT][constants::HCAL_NUM_GBT_LINKS][constants::HCAL_NUM_ROCS_PER_LINK][2];
+
+  gsl::span<const uint16_t> getADCs(int sample, int link, int roc, int half) const;
+  gsl::span<const uint16_t> getTOAs(int sample, int link, int roc, int half) const;
+  gsl::span<const uint16_t> getTOTs(int sample, int link, int roc, int half) const;
+
+  void reset();
+
+  ClassDefNV(HCALEvent, 2);
+};
+
 class Event
 {
  public:
@@ -101,6 +139,10 @@ class Event
   const PadLayerEvent& getPadLayer(unsigned int index) const;
   void setPadLayer(unsigned int layer, const PadLayerEvent& event);
 
+  HCALEvent& getHCAL();
+  const HCALEvent& getHCAL() const;
+  void setHCAL(const HCALEvent& event);
+
   PixelLayerEvent& getPixelLayer(unsigned int index);
   const PixelLayerEvent& getPixelLayer(unsigned int index) const;
   void setPixelLayerEvent(unsigned int layer, const PixelLayerEvent& event);
@@ -110,7 +152,7 @@ class Event
 
   void reset();
 
-  void construct(const o2::InteractionRecord& interaction, gsl::span<const PadLayerEvent> pads, gsl::span<const PixelChipRecord> eventPixels, gsl::span<const PixelHit> pixelHits);
+  void construct(const o2::InteractionRecord& interaction, gsl::span<const PadLayerEvent> pads, gsl::span<const HCALEvent> hcal, gsl::span<const PixelChipRecord> eventPixels, gsl::span<const PixelHit> pixelHits);
 
   bool isInitialized() const { return mInitialized; }
 
@@ -120,6 +162,7 @@ class Event
 
   InteractionRecord mInteractionRecord;
   std::array<PadLayerEvent, constants::PADS_NLAYERS> mPadLayers;
+  HCALEvent mHCALData;
   std::array<PixelLayerEvent, constants::PIXELS_NLAYERS> mPixelLayers;
   bool mInitialized = false;
 

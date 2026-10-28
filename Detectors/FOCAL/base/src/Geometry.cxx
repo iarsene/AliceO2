@@ -221,10 +221,14 @@ void Geometry::setParameters(std::string geometryfile)
     LOG(info) << "Using geometry file " << geometryfile;
   }
 
-  std::vector<Composition> padCompDummy(10);
-  std::vector<Composition> hCalCompDummy(10);
-  std::vector<Composition> pixelCompDummy(10);
-  std::vector<Composition> frontMatterCompDummy(10);
+  std::vector<Composition> padCompDummy;
+  std::vector<Composition> hCalCompDummy;
+  std::vector<Composition> pixelCompDummy;
+  std::vector<Composition> frontMatterCompDummy;
+  padCompDummy.reserve(10);
+  hCalCompDummy.reserve(10);
+  pixelCompDummy.reserve(10);
+  frontMatterCompDummy.reserve(10);
   int nPad = 0;
   int hHCal = 0;
   int nPixel = 0;
@@ -379,6 +383,11 @@ void Geometry::setParameters(std::string geometryfile)
       if (command.find("HCAL_TOWER_NY") != std::string::npos) {
         mGlobal_HCAL_Tower_NY = std::stoi(tokens[1]);
         LOG(debug) << "The number of the HCAL readout towers in Y will be : " << mGlobal_HCAL_Tower_NY;
+      }
+
+      if (command.find("HCAL_TOWER_HEIGHT") != std::string::npos) {
+        mGlobal_HCAL_Tower_Height = std::stof(tokens[1]);
+        LOG(debug) << "The height of the HCAL readout towers will be : " << mGlobal_HCAL_Tower_Height;
       }
 
       if (command.find("HCAL_BEAMPIPE") != std::string::npos) {
@@ -734,8 +743,8 @@ std::tuple<double, double, double> Geometry::getGeoTowerCenter(int tower, int se
       case HCALDesgin::Sheets: {
         Composition comp1 = mHCalCompositionBase[0];
         Composition comp2 = mHCalCompositionBase[2];
-        double hCALsizeX = comp1.sizeX() * 2;                                        // Size of two sheet in X
-        double hCALsizeY = getHCALTowersInY() * (comp1.sizeY() + comp2.sizeY()) * 2; // To be set in a better way
+        double hCALsizeX = comp1.sizeX() * 2;                                                           // Size of two sheet in X
+        double hCALsizeY = getHCALTowersInY() * (comp1.sizeY() + comp2.sizeY()) * getHCALTowerHeight(); // To be set in a better way
 
         x = ix * hCALsizeX / getHCALTowersInX() + 0.5 * hCALsizeX / getHCALTowersInX() - 0.5 * hCALsizeX;
         y = iy * hCALsizeY / getHCALTowersInY() + 0.5 * hCALsizeY / getHCALTowersInY() - 0.5 * hCALsizeY;
@@ -1153,8 +1162,8 @@ std::tuple<bool, int, int, int, int> Geometry::getVirtualInfo(double x, double y
       case HCALDesgin::Sheets: {
         Composition comp1 = mHCalCompositionBase[0];
         Composition comp2 = mHCalCompositionBase[2];
-        double hCALsizeX = comp1.sizeX() * 2;                                        // Size of two sheet in X
-        double hCALsizeY = getHCALTowersInY() * (comp1.sizeY() + comp2.sizeY()) * 2; // To be set in a better way
+        double hCALsizeX = comp1.sizeX() * 2;                                                           // Size of two sheet in X
+        double hCALsizeY = getHCALTowersInY() * (comp1.sizeY() + comp2.sizeY()) * getHCALTowerHeight(); // To be set in a better way
 
         if (y < getHCALBeamPipeHoleSize() / 2 && y > -getHCALBeamPipeHoleSize() / 2) {
           if (x < 0) {
@@ -1213,8 +1222,8 @@ std::tuple<bool, double, double, double> Geometry::getXYZFromColRowSeg(int col, 
       case HCALDesgin::Sheets: {
         Composition comp1 = mHCalCompositionBase[0];
         Composition comp2 = mHCalCompositionBase[2];
-        double hCALsizeX = comp1.sizeX() * 2;                                        // Size of two sheet in X
-        double hCALsizeY = getHCALTowersInY() * (comp1.sizeY() + comp2.sizeY()) * 2; // To be set in a better way
+        double hCALsizeX = comp1.sizeX() * 2;                                                           // Size of two sheet in X
+        double hCALsizeY = getHCALTowersInY() * (comp1.sizeY() + comp2.sizeY()) * getHCALTowerHeight(); // To be set in a better way
 
         y = -1 * hCALsizeY / 2 + ((float)row + 0.5) * (hCALsizeY / getHCALTowersInY());
         x = -1 * hCALsizeX / 2 + ((float)col + 0.5) * (hCALsizeX / getHCALTowersInX());

@@ -22,6 +22,7 @@ void EventReader::init(TTree* eventTree)
 {
   mTreeReader = std::make_unique<TTreeReader>(eventTree);
   mPadBranch = std::make_unique<TTreeReaderValue<std::vector<PadLayerEvent>>>(*mTreeReader, "FOCALPadLayer");
+  mHCalBranch = std::make_unique<TTreeReaderValue<std::vector<HCALEvent>>>(*mTreeReader, "FOCALHCAL");
   mPixelChipBranch = std::make_unique<TTreeReaderValue<std::vector<PixelChipRecord>>>(*mTreeReader, "FOCALPixelChip");
   mPixelHitBranch = std::make_unique<TTreeReaderValue<std::vector<PixelHit>>>(*mTreeReader, "FOCALPixelHit");
   mTriggerBranch = std::make_unique<TTreeReaderValue<std::vector<TriggerRecord>>>(*mTreeReader, "FOCALTrigger");
@@ -80,8 +81,12 @@ Event EventReader::readNextEvent()
     if (triggerrecord.getNumberOfPixelChipObjects()) {
       eventPixelChip = gsl::span<const PixelChipRecord>((*mPixelChipBranch)->data() + triggerrecord.getFirstPixelChipEntry(), triggerrecord.getNumberOfPixelChipObjects());
     }
+    gsl::span<const HCALEvent> eventHCalData;
+    if (triggerrecord.getNumberOfHcalObjects()) {
+      eventHCalData = gsl::span<const HCALEvent>((*mHCalBranch)->data() + triggerrecord.getFirstHcalEntry(), triggerrecord.getNumberOfHcalObjects());
+    }
 
-    nextevent.construct(triggerrecord.getBCData(), eventPadData, eventPixelChip, eventPixelHits);
+    nextevent.construct(triggerrecord.getBCData(), eventPadData, eventHCalData, eventPixelChip, eventPixelHits);
   }
   mEntryInTF++;
   return nextevent;

@@ -13,11 +13,24 @@
 
 namespace o2::focal::constants
 {
+// HCal
+constexpr int HCAL_NUM_CHANNELS_PER_ROC_HALF = 36;
+constexpr int HCAL_NUM_GBT_LINKS = 2;
+constexpr int HCAL_NUM_ROCS_PER_LINK = 2;
+constexpr int HCAL_NUM_SAMPLES_PER_EVENT = 16;
+constexpr int HCAL_NUM_GBT_LINES_PER_LINK = 40;
+constexpr int HCAL_NUM_COLUMNS = 16;
+constexpr int HCAL_NUM_ROWS = 16;
+constexpr double HCAL_TIMEWINDOW = HCAL_NUM_SAMPLES_PER_EVENT * 25.0; // each sample is taken 25ns apart, total time window is dependent on how many samples
+
+// Pads
 constexpr int PADLAYER_MODULE_NCHANNELS = 72;
 constexpr int PADLAYER_MODULE_NHALVES = 2;
-constexpr int PADS_NLAYERS = 20;
-constexpr int PIXELS_NLAYERS = 2;
 constexpr int PADLAYER_WINDOW_LENGTH = 20;
+constexpr int PADS_NLAYERS = 20;
+
+// Pixels
+constexpr int PIXELS_NLAYERS = 2;
 
 } // namespace o2::focal::constants
 

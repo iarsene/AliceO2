@@ -41,6 +41,7 @@ class EventReader
   int mEntryInTF = 0;
   std::unique_ptr<TTreeReader> mTreeReader;
   std::unique_ptr<TTreeReaderValue<std::vector<PadLayerEvent>>> mPadBranch;
+  std::unique_ptr<TTreeReaderValue<std::vector<HCALEvent>>> mHCalBranch;
   std::unique_ptr<TTreeReaderValue<std::vector<PixelHit>>> mPixelHitBranch;
   std::unique_ptr<TTreeReaderValue<std::vector<PixelChipRecord>>> mPixelChipBranch;
   std::unique_ptr<TTreeReaderValue<std::vector<TriggerRecord>>> mTriggerBranch;

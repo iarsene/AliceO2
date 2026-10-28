@@ -9,6 +9,7 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 #include <algorithm>
+#include <cstring>
 #include <DataFormatsFOCAL/ErrorHandling.h>
 #include <DataFormatsFOCAL/Event.h>
 #include <iostream>
@@ -56,12 +57,13 @@ void Event::reset()
   for (auto& padlayer : mPadLayers) {
     padlayer.reset();
   }
+  mHCALData.reset();
   for (auto& pixellayer : mPixelLayers) {
     pixellayer.reset();
   }
 }
 
-void Event::construct(const o2::InteractionRecord& interaction, gsl::span<const PadLayerEvent> pads, gsl::span<const PixelChipRecord> eventPixels, gsl::span<const PixelHit> pixelHits)
+void Event::construct(const o2::InteractionRecord& interaction, gsl::span<const PadLayerEvent> pads, gsl::span<const HCALEvent> hcal, gsl::span<const PixelChipRecord> eventPixels, gsl::span<const PixelHit> pixelHits)
 {
   reset();
   mInteractionRecord = interaction;
@@ -69,6 +71,10 @@ void Event::construct(const o2::InteractionRecord& interaction, gsl::span<const 
   for (auto& padlayer : pads) {
     mPadLayers[ilayer] = padlayer;
     ilayer++;
+  }
+
+  if (!hcal.empty()) {
+    mHCALData = hcal[0];
   }
 
   int currentlast = 0;
@@ -108,6 +114,62 @@ void Event::check_pixel_layers(unsigned int index) const
   if (index >= constants::PIXELS_NLAYERS) {
     throw IndexExceptionEvent(index, constants::PIXELS_NLAYERS, IndexExceptionEvent::IndexType_t::PIXEL_LAYER);
   }
+}
+
+HCALEvent& Event::getHCAL()
+{
+  return mHCALData;
+}
+
+const HCALEvent& Event::getHCAL() const
+{
+  return mHCALData;
+}
+
+void Event::setHCAL(const HCALEvent& event)
+{
+  mHCALData = event;
+}
+
+gsl::span<const uint16_t> HCALEvent::getADCs(int sample, int link, int roc, int half) const
+{
+  return gsl::span<const uint16_t>(mADC[sample][link][roc][half],
+                                   constants::HCAL_NUM_CHANNELS_PER_ROC_HALF);
+}
+
+gsl::span<const uint16_t> HCALEvent::getTOAs(int sample, int link, int roc, int half) const
+{
+  return gsl::span<const uint16_t>(mTOA[sample][link][roc][half],
+                                   constants::HCAL_NUM_CHANNELS_PER_ROC_HALF);
+}
+
+gsl::span<const uint16_t> HCALEvent::getTOTs(int sample, int link, int roc, int half) const
+{
+  return gsl::span<const uint16_t>(mTOT[sample][link][roc][half],
+                                   constants::HCAL_NUM_CHANNELS_PER_ROC_HALF);
+}
+
+void HCALEvent::reset()
+{
+  mOrbit = 0;
+  mBC = 0;
+
+  memset(mHeader, 0, sizeof(mHeader));
+
+  memset(tc, 0, sizeof(tc));
+  memset(tp, 0, sizeof(tp));
+
+  memset(mADC, 0, sizeof(mADC));
+  memset(mTOA, 0, sizeof(mTOA));
+  memset(mTOT, 0, sizeof(mTOT));
+
+  memset(mCMN_ADC, 0, sizeof(mCMN_ADC));
+  memset(mCMN_TOA, 0, sizeof(mCMN_TOA));
+  memset(mCMN_TOT, 0, sizeof(mCMN_TOT));
+
+  memset(mCalib_ADC, 0, sizeof(mCalib_ADC));
+  memset(mCalib_TOA, 0, sizeof(mCalib_TOA));
+  memset(mCalib_TOT, 0, sizeof(mCalib_TOT));
 }
 
 void PadLayerEvent::setHeader(unsigned int half, uint8_t header, uint8_t bc, uint8_t wadd, uint8_t fourbits, uint8_t trailer)
