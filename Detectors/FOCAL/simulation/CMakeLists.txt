@@ -12,6 +12,7 @@
 o2_add_library(FOCALSimulation
     SOURCES src/Detector.cxx
             src/PadSimParam.cxx
+            src/HgcrocResponse.cxx
     PUBLIC_LINK_LIBRARIES ROOT::TreePlayer O2::FOCALBase O2::DetectorsBase O2::SimConfig O2::SimulationDataFormat O2::Headers O2::DataFormatsFOCAL
     AliceO2::InfoLogger
     Microsoft.GSL::GSL)
@@ -20,6 +21,7 @@ o2_target_root_dictionary(
     FOCALSimulation
     HEADERS include/FOCALSimulation/Detector.h
             include/FOCALSimulation/PadSimParam.h
+            include/FOCALSimulation/HgcrocResponse.h
 )
 
 o2_data_file(COPY geometryFiles  DESTINATION Detectors/Geometry/FOC/)
